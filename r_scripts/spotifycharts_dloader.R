@@ -1,7 +1,7 @@
 library(dplyr)
 library(readr)
 dates <- seq(as.Date("2015/09/01"),
-             as.Date("2016/08/31"),
+             as.Date("2016/09/01"),
              "days")
 
 file_names <- as.character(dates)
@@ -41,10 +41,11 @@ load_files <- function(files, first_table){
   }
 
 final <- load_files(file_names, first_table)
+
 clean_final <- final %>%
   filter(!is.na(URL), is.na(`<!doctype html>`))
 
-no_doc_column <- clean_final[,1:5]
+no_doc_column <- clean_final[,1:6]
 
 complete_case <- complete.cases(no_doc_column)
 length(complete_case)
@@ -53,9 +54,19 @@ has_doctype <- final %>%
   filter(!is.na(`<!doctype html>`))
 
 error_dates <- as.character(unique(has_doctype$Date))
-#download_charts(error_dates, url)
+#re-download dates that are empty.
+download_charts(error_dates, url)
 
 #THERE IS NO DATA ON 9-24-2015
 
 
-#final_clean <- load_files(error_dates, no_doc_column)
+final_clean <- load_files(error_dates, no_doc_column)
+final_clean <- final_clean %>% filter(Date != '2015-09-24')
+final_clean <- final_clean[,1:6]
+
+#Add 09-01-2016 because I didn't add it initially. Remove these lines if you are running the script from the beginning.
+
+by_dates <- final_clean %>% group_by(Date) %>%
+  summarise(n = n())
+ouput_csv <- write_csv(final_clean, "top200_daily.csv")
+
