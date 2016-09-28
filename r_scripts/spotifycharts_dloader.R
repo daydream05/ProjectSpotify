@@ -63,10 +63,12 @@ download_charts(error_dates, url)
 final_clean <- load_files(error_dates, no_doc_column)
 final_clean <- final_clean %>% filter(Date != '2015-09-24')
 final_clean <- final_clean[,1:6]
+final_clean <- final_clean %>% filter(!is.na(URL))
 
 #Add 09-01-2016 because I didn't add it initially. Remove these lines if you are running the script from the beginning.
 
 by_dates <- final_clean %>% group_by(Date) %>%
   summarise(n = n())
+
 ouput_csv <- write_csv(final_clean, "top200_daily.csv")
 
