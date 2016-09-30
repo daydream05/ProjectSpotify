@@ -11,13 +11,13 @@ def download_daily_per_region():
     date = pd.date_range('2015-09-01', '2016-09-01')
     dates = date.strftime("%Y-%m-%d")
 
+    url = "https://spotifycharts.com/regional/"
     for name in country_names['code']:
         print("Downloading files from " + name)
         frames = []
 
-        url = "https://spotifycharts.com/regional/" + name + "/daily/"
         for date in dates:
-            url = url + date + "/download"
+            complete_url = url +  name + "/daily/" + date + "/download"
             #try:
                 #daily = pd.read_csv(url)
                 #print('read succesful')
@@ -25,16 +25,13 @@ def download_daily_per_region():
                 #daily['date'] = date
                 #frames.append(daily)
 
-            daily = pd.read_csv(url, sep='delimiter+',index_col=False, engine='python')
-            print('read succesful')
+            daily = pd.read_csv(complete_url, error_bad_lines=False)
             daily['code'] = name
             daily['date'] = date
             frames.append(daily)
-            urllib.request.urlretrieve(url)
+
             #except urllib.request.HTTPError as err:
             #print(err)
-
-
         result = pd.concat(frames)
 
         result.to_csv(project_dir + "\\spotipy_script\\country\\" + name + ".csv")
